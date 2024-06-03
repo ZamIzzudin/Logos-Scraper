@@ -7,10 +7,17 @@ import scrapy
 
 
 class EPROCItem(scrapy.Item):
-    kode_paket= scrapy.Field()
-    nama_paket= scrapy.Field()
-    deskripsi_paket= scrapy.Field()
-    nilai_kontrak= scrapy.Field()
+    kode_tender= scrapy.Field()
+    nama_tender= scrapy.Field()
+    tanggal_pembuatan= scrapy.Field()
+    jenis_pengadaan= scrapy.Field()
     instansi= scrapy.Field()
-    HPS= scrapy.Field()
+    satuan_kerja= scrapy.Field()
+    tahun_anggaran= scrapy.Field()
+    nilai_pagu_paket= scrapy.Field()
+    nilai_hps_paket= scrapy.Field()
+    jenis_kontrak= scrapy.Field()
+    lokasi_pengerjaan= scrapy.Field()
+    syarat_kualifikasi= scrapy.Field()
+    peserta_tender= scrapy.Field()
     pass
