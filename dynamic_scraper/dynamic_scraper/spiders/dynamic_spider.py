@@ -14,7 +14,6 @@ class DynamicSpider(scrapy.Spider):
 
     def __init__(self):
         chrome_options = Options()
-        chrome_options.add_argument(r"user-data-dir=C:\Users\wilda\AppData\Local\Google\Chrome\User Data\Profile 3")
         self.driver = webdriver.Chrome(options=chrome_options)
         self.output_file = open('output.json', 'w')
         self.output_file.write('[')
@@ -30,10 +29,6 @@ class DynamicSpider(scrapy.Spider):
         first_item = True
 
         for row in rows:
-            if not first_item:
-                self.output_file.write(',')
-            first_item = False
-
             kode_tender = row.find_element(By.XPATH, "./td[1]").text
             detail_url = f"https://lpse.pu.go.id/eproc4/lelang/{kode_tender}/pengumumanlelang"
             self.driver.execute_script(f"window.open('{detail_url}', '_blank');")
@@ -42,9 +37,16 @@ class DynamicSpider(scrapy.Spider):
                 EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/table/tbody/tr[1]/td/strong"))
             )
 
+            # Filter out the item if the nilai pagu paket is between Rp. 15.000.000.000 and Rp. 50.000.000.000
             item = self.extract_detail_page()
-            json.dump(dict(item), self.output_file)
-            yield item
+            nilai_pagu_paket = item['nilai_pagu_paket']
+            nilai_pagu_paket = float(nilai_pagu_paket.replace('Rp. ', '').replace('.', '').replace(',', '.'))
+            if 15000000000 < nilai_pagu_paket < 50000000000:
+                if not first_item:
+                    self.output_file.write(',')
+                first_item = False
+                json.dump(dict(item), self.output_file)
+                yield item
 
             self.driver.close()
             self.driver.switch_to.window(main_window)
