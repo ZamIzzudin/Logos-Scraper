@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 myenv
+venv
 output.json
 # C extensions
 *.so

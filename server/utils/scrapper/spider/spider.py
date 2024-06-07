@@ -1,22 +1,21 @@
 import scrapy
-import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from dynamic_scraper.items import EPROCItem
 
 class DynamicSpider(scrapy.Spider):
     name = 'dynamic_spider'
     allowed_domains = ['lpse.pu.go.id']
     start_urls = ['https://lpse.pu.go.id/eproc4/lelang']
+    items = []
 
     def __init__(self):
+        super(DynamicSpider, self).__init__()
         chrome_options = Options()
+        chrome_options.add_argument("--headless")
         self.driver = webdriver.Chrome(options=chrome_options)
-        self.output_file = open('output.json', 'w')
-        self.output_file.write('[')
 
     def parse(self, response):
         self.driver.get(response.url)
@@ -26,7 +25,6 @@ class DynamicSpider(scrapy.Spider):
 
         rows = self.driver.find_elements(By.XPATH, "/html/body/div[6]/div/div/div/div/div[1]/div[2]/div/table/tbody/tr")
         main_window = self.driver.current_window_handle
-        first_item = True
 
         for row in rows:
             kode_tender = row.find_element(By.XPATH, "./td[1]").text
@@ -37,35 +35,27 @@ class DynamicSpider(scrapy.Spider):
                 EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/table/tbody/tr[1]/td/strong"))
             )
 
-            # Filter out the item if the nilai pagu paket is between Rp. 15.000.000.000 and Rp. 50.000.000.000
             item = self.extract_detail_page()
             nilai_pagu_paket = item['nilai_pagu_paket']
             nilai_pagu_paket = float(nilai_pagu_paket.replace('Rp. ', '').replace('.', '').replace(',', '.'))
             if 15000000000 < nilai_pagu_paket < 50000000000:
-                if not first_item:
-                    self.output_file.write(',')
-                first_item = False
-                json.dump(dict(item), self.output_file)
-                yield item
+                self.items.append(item)
 
             self.driver.close()
             self.driver.switch_to.window(main_window)
 
         self.driver.quit()
-        self.output_file.write(']')
-        self.output_file.close()
-
+        return self.items
+    
     def extract_detail_page(self):
-        item = EPROCItem()
-        # Function to safely get text from an element
+        item = {}
+
         def get_text_or_default(xpath, default=""):
-            basepath = "/html/body/div[2]/div/div/table/tbody/tr"
             try:
                 return self.driver.find_element(By.XPATH, xpath).text
             except:
                 return default
 
-        # Extract data based on labels or context
         item['kode_tender'] = get_text_or_default("//tr[1]/td/strong")
         item['nama_tender'] = get_text_or_default("//tr[2]/td/strong")
         item['tanggal_pembuatan'] = get_text_or_default("//tr[th[contains(text(), 'Tanggal Pembuatan')]]/td[1]")
@@ -84,4 +74,3 @@ class DynamicSpider(scrapy.Spider):
 
     def closed(self, reason):
         self.driver.quit()
-        self.output_file.close()
