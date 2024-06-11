@@ -1,22 +1,15 @@
 from flask import Blueprint, jsonify
+from ..config.db import db_connection
 
 bp = Blueprint('data', __name__)
 
-@bp.route('/', methods=['GET'])
+@bp.route('/scrape', methods=['GET'])
 def get_data():
-    data = {
-        'status':'success',
-        "message": 'Success Get Test Data',
-        'data': [
-            {
-            'id':'09090909',
-            'title':'Lorem Ipsum'
-        },
-        {
-            'id':'08080808080',
-            'title':'Dolor Smit'
-        }
-        ]
-    }
+    db = db_connection('scrapes')
+
+    data = list(db.find())
+
+    for item in data:
+        item['_id'] = str(item['_id'])
 
     return jsonify(data), 200

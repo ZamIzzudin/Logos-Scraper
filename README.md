@@ -34,8 +34,14 @@ Out from Virtual Environtment
 
 ## API Reference
 
+#### Store Scraping Data
+
+```http
+  GET /scrape/store
+```
+
 #### Get Scraping Data
 
 ```http
-  GET /scrape
+  GET /data/scrape
 ```
