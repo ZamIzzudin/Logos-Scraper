@@ -7,8 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class DynamicSpider(scrapy.Spider):
     name = 'dynamic_spider'
-    allowed_domains = ['lpse.jakarta.go.id']
-    start_urls = ['https://lpse.jakarta.go.id/eproc4']
+    allowed_domains = ['lpse.pu.go.id']
+    start_urls = ['https://lpse.pu.go.id/eproc4/lelang']
     items = []
 
     def __init__(self):
@@ -19,23 +19,16 @@ class DynamicSpider(scrapy.Spider):
 
     def parse(self, response):
         self.driver.get(response.url)
-
         WebDriverWait(self.driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id='main']/div/div/div[3]/div/div/div[2]/table/tbody/tr[contains(@class, 'Jasa_Konsultansi_Badan_Usaha_Non_Konstruksi')]//a"))
+            EC.presence_of_element_located((By.XPATH, "/html/body/div[6]/div/div/div/div/div[1]/div[2]/div/table/tbody/tr"))
         )
 
-        types = ['Pengadaan_Barang', 'Jasa_Konsultansi_Badan_Usaha_Non_Konstruksi', 'Pekerjaan_Konstruksi','Jasa_Lainnya', 'Jasa_Konsultansi_Perorangan_Non_Konstruksi','Jasa_Konsultansi_Badan_Usaha_Konstruksi', 'Jasa_Konsultansi_Perorangan_Konstruksi','Pekerjaan_Konstruksi_Terintegrasi']
-        anchors = []
-
-        for type in types :
-            data = self.driver.find_elements(By.XPATH, f"//*[@id='main']/div/div/div[3]/div/div/div[2]/table/tbody/tr[contains(@class, '{type}')]//a")
-            if data:
-                anchors.extend(data)
-        
+        rows = self.driver.find_elements(By.XPATH, "/html/body/div[6]/div/div/div/div/div[1]/div[2]/div/table/tbody/tr")
         main_window = self.driver.current_window_handle
 
-        for anchor in anchors:
-            detail_url = anchor.get_attribute('href')
+        for row in rows:
+            kode_tender = row.find_element(By.XPATH, "./td[1]").text
+            detail_url = f"https://lpse.pu.go.id/eproc4/lelang/{kode_tender}/pengumumanlelang"
             self.driver.execute_script(f"window.open('{detail_url}', '_blank');")
             self.driver.switch_to.window(self.driver.window_handles[1])
             WebDriverWait(self.driver, 10).until(
@@ -43,12 +36,11 @@ class DynamicSpider(scrapy.Spider):
             )
 
             item = self.extract_detail_page()
-            # nilai_pagu_paket = item['nilai_pagu_paket']
-            # nilai_pagu_paket = float(nilai_pagu_paket.replace('Rp. ', '').replace('.', '').replace(',', '.'))
-            # if 15000000000 < nilai_pagu_paket < 50000000000:
-            #     self.items.append(item)
+            nilai_pagu_paket = item['nilai_pagu_paket']
+            nilai_pagu_paket = float(nilai_pagu_paket.replace('Rp. ', '').replace('.', '').replace(',', '.'))
+            if 15000000000 < nilai_pagu_paket < 50000000000:
+                self.items.append(item)
 
-            self.items.append(item)
             self.driver.close()
             self.driver.switch_to.window(main_window)
 

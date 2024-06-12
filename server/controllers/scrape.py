@@ -6,26 +6,16 @@ bp = Blueprint('scrape', __name__)
 
 @bp.route('/store', methods=['GET'])
 def get_data():
-    try:
-        utils = Utils()
-        db = db_connection('scrapes')
+    utils = Utils()
+    db = db_connection('scrapes')
 
-        data = utils.scrape_data()
+    data = utils.scrape_data()
 
-        result = db.insert_many(data)
+    result = db.insert_many(data)
 
-        response = {
-            'status':'success',
-            'message':'Success Scrape and Store Data',
-        }
-        return jsonify(response), 200
-    except:
-        response = {
-        'status':'failed',
-        'message':'Something went Wrong',
-        }
-        return jsonify(response), 500
-
+    response = {
+        'status':'success',
+        'message':'Success Scrape and Store Data',
+    }
     
-    
-    
+    return jsonify(response), 200
