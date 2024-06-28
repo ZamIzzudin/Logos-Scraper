@@ -4,10 +4,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
+from urllib.parse import urlparse
 import json
 
 class DynamicSpider(scrapy.Spider):
     name = 'dynamic_spider'
+    # allowed_domains = ['lpse.jakarta.go.id','lpse.jabarprov.go.id']
+    # start_urls = ['https://lpse.jakarta.go.id/eproc4','https://lpse.jabarprov.go.id/eproc4']
     allowed_domains = ['lpse.jakarta.go.id']
     start_urls = ['https://lpse.jakarta.go.id/eproc4']
     items = []
@@ -22,7 +26,7 @@ class DynamicSpider(scrapy.Spider):
         self.driver.get(response.url)
 
         WebDriverWait(self.driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id='main']/div/div/div[3]/div/div/div[2]/table/tbody/tr[contains(@class, 'Jasa_Konsultansi_Badan_Usaha_Non_Konstruksi')]//a"))
+            EC.presence_of_element_located((By.XPATH, "//*[@id='main']/div/div/div[3]/div/div/div[2]/table/tbody/tr[contains(@class, 'Jasa_Konsultansi_Badan_Usaha_Konstruksi')]//a"))
         )
 
         types = [
@@ -79,6 +83,12 @@ class DynamicSpider(scrapy.Spider):
         item['lokasi_pengerjaan'] = get_text_or_default("//tr[th[contains(text(), 'Lokasi Pekerjaan')]]/td[1]/ul/li")
         item['syarat_kualifikasi'] = get_text_or_default("//tr[th[contains(text(), 'Syarat Kualifikasi')]]/td[1]")
         item['peserta_tender'] = get_text_or_default("//tr[th[contains(text(), 'Peserta Tender')]]/td[1]")
+        item['is_show'] = True
+        item['date_added'] = datetime.now().strftime("%Y-%m-%d")
+
+        # set domain as anchor
+        parsed_url = urlparse(self.driver.current_url)
+        item['anchor'] = parsed_url.netloc
 
         with open('server/utils/scrapper/spider/sbu.json', 'r') as sbu_file:
             sbu_list = json.load(sbu_file)
@@ -93,7 +103,7 @@ class DynamicSpider(scrapy.Spider):
         del item['syarat_kualifikasi']
 
         # Navigate to the steps detail page
-        detail_url = self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div/table/tbody/tr[6]/td/a").get_attribute('href')
+        detail_url = self.driver.find_element(By.XPATH, "//tr[th[contains(text(), 'Tahap Tender Saat Ini')]]/td[1]/a").get_attribute('href')
         self.driver.execute_script(f"window.open('{detail_url}', '_blank');")
         WebDriverWait(self.driver, 10).until(lambda d: len(d.window_handles) > 2)
         self.driver.switch_to.window(self.driver.window_handles[-1])
