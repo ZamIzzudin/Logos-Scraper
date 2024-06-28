@@ -29,7 +29,7 @@ def scrape_store_data():
     new_data = []
 
     # Change Status To Unvisible For All Anchor Data
-    db.update_many({'anchor': data[0]['anchor']},{'$set':{'is_show':False}})
+    db.update_many({},{'$set':{'is_show':False}})
 
     for item in data:
         if not db.find_one({'kode_tender': item['kode_tender']}):
