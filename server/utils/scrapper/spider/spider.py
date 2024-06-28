@@ -11,13 +11,15 @@ import json
 class DynamicSpider(scrapy.Spider):
     name = 'dynamic_spider'
     allowed_domains = [
-        'lpse.kemenag.go.id','lpse.kemkes.go.id', 'lpse.kkp.go.id'
+        'lpse.tangerangkota.go.id', 'lpse.tangerangkab.go.id', 'lpse.tangerangselatankota.go.id',
+        'lpse.depok.go.id', 'lpse.bekasikota.go.id', 'lpse.bekasikab.go.id',
+        'eproc.kotabogor.go.id', 'lpse.bogorkab.go.id'
     ]
     start_urls = [
-        'https://linklpse.blogspot.com/2016/02/lpse-kementerian-pekerjaan-umum.html',
-        'https://lpse.kemenag.go.id/eproc4',
-        'https://lpse.kemkes.go.id/eproc4',
-        'https://lpse.kkp.go.id/eproc4'
+        'https://lpse.tangerangkota.go.id/eproc4', 'https://lpse.tangerangkab.go.id/eproc4',
+        'https://lpse.tangerangselatankota.go.id/eproc4', 'https://lpse.depok.go.id/eproc4',
+        'http://lpse.bekasikota.go.id/eproc4', 'https://lpse.bekasikab.go.id/eproc4',
+        'https://eproc.kotabogor.go.id/eproc4/', 'https://lpse.bogorkab.go.id/eproc4'
     ]
     items = []
 
