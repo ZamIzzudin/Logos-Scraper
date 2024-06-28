@@ -9,10 +9,12 @@ bp = Blueprint('scrape', __name__)
 def scrape_data():
     utils = Utils()
     data = utils.scrape_data()
+    total_data = len(data)
 
     response = {
         'status':'success',
         'message':'Success Scrape Data',
+        'total_data':total_data,
         'data':data
     }
 

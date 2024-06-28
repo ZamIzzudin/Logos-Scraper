@@ -10,24 +10,25 @@ import json
 
 class DynamicSpider(scrapy.Spider):
     name = 'dynamic_spider'
-    # allowed_domains = ['lpse.jakarta.go.id','lpse.jabarprov.go.id']
-    # start_urls = ['https://lpse.jakarta.go.id/eproc4','https://lpse.jabarprov.go.id/eproc4']
-    allowed_domains = ['lpse.jakarta.go.id']
-    start_urls = ['https://lpse.jakarta.go.id/eproc4']
+    allowed_domains = [
+        'lpse.kemenag.go.id','lpse.kemkes.go.id', 'lpse.kkp.go.id'
+    ]
+    start_urls = [
+        'https://linklpse.blogspot.com/2016/02/lpse-kementerian-pekerjaan-umum.html',
+        'https://lpse.kemenag.go.id/eproc4',
+        'https://lpse.kemkes.go.id/eproc4',
+        'https://lpse.kkp.go.id/eproc4'
+    ]
     items = []
 
     def __init__(self):
         super().__init__()
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        self.driver = webdriver.Chrome(options=chrome_options)
+        self.chrome_options = Options()
+        self.chrome_options.add_argument("--headless")
 
     def parse(self, response):
+        self.driver = webdriver.Chrome(options=self.chrome_options)
         self.driver.get(response.url)
-
-        WebDriverWait(self.driver, 20).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id='main']/div/div/div[3]/div/div/div[2]/table/tbody/tr[contains(@class, 'Jasa_Konsultansi_Badan_Usaha_Konstruksi')]//a"))
-        )
 
         types = [
             'Pengadaan_Barang', 'Jasa_Konsultansi_Badan_Usaha_Non_Konstruksi', 'Pekerjaan_Konstruksi',
@@ -72,14 +73,11 @@ class DynamicSpider(scrapy.Spider):
 
         item['kode_tender'] = get_text_or_default("//tr[1]/td/strong")
         item['nama_tender'] = get_text_or_default("//tr[2]/td/strong")
-        item['tanggal_pembuatan'] = get_text_or_default("//tr[th[contains(text(), 'Tanggal Pembuatan')]]/td[1]")
         item['jenis_pengadaan'] = get_text_or_default("//tr[th[contains(text(), 'Jenis Pengadaan')]]/td[1]")
         item['instansi'] = get_text_or_default("//tr[th[contains(text(), 'K/L/PD/Instansi Lainnya')]]/td[1]")
         item['satuan_kerja'] = get_text_or_default("//tr[th[contains(text(), 'Satuan Kerja')]]/td[1]")
         item['tahun_anggaran'] = get_text_or_default("//tr[th[contains(text(), 'Tahun Anggaran')]]/td[1]")
-        item['nilai_pagu_paket'] = get_text_or_default("//tr[th[contains(text(), 'Nilai Pagu Paket')]]/td[1]")
         item['nilai_hps_paket'] = get_text_or_default("//tr[th[contains(text(), 'Nilai HPS Paket')]]/td[2]")
-        item['jenis_kontrak'] = get_text_or_default("//tr[th[contains(text(), 'Jenis Kontrak')]]/td[1]")
         item['lokasi_pengerjaan'] = get_text_or_default("//tr[th[contains(text(), 'Lokasi Pekerjaan')]]/td[1]/ul/li")
         item['syarat_kualifikasi'] = get_text_or_default("//tr[th[contains(text(), 'Syarat Kualifikasi')]]/td[1]")
         item['peserta_tender'] = get_text_or_default("//tr[th[contains(text(), 'Peserta Tender')]]/td[1]")
@@ -128,3 +126,10 @@ class DynamicSpider(scrapy.Spider):
 
     def closed(self, reason):
         self.driver.quit()
+
+    def start_requests(self):
+        for url in self.start_urls:
+            try:
+                yield scrapy.Request(url=url, callback=self.parse, dont_filter=True)
+            except Exception as e:
+                self.logger.error(f"Error processing {url}: {e}")
