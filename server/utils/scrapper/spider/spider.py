@@ -12,14 +12,11 @@ class DynamicSpider(scrapy.Spider):
     name = 'dynamic_spider'
     allowed_domains = [
         'lpse.tangerangkota.go.id', 'lpse.tangerangkab.go.id', 'lpse.tangerangselatankota.go.id',
-        'lpse.depok.go.id', 'lpse.bekasikota.go.id', 'lpse.bekasikab.go.id',
-        'eproc.kotabogor.go.id', 'lpse.bogorkab.go.id'
+
     ]
     start_urls = [
         'https://lpse.tangerangkota.go.id/eproc4', 'https://lpse.tangerangkab.go.id/eproc4',
-        'https://lpse.tangerangselatankota.go.id/eproc4', 'https://lpse.depok.go.id/eproc4',
-        'http://lpse.bekasikota.go.id/eproc4', 'https://lpse.bekasikab.go.id/eproc4',
-        'https://eproc.kotabogor.go.id/eproc4/', 'https://lpse.bogorkab.go.id/eproc4'
+        'https://lpse.tangerangselatankota.go.id/eproc4',
     ]
     items = []
 
@@ -37,6 +34,7 @@ class DynamicSpider(scrapy.Spider):
             'Jasa_Lainnya', 'Jasa_Konsultansi_Perorangan_Non_Konstruksi', 'Jasa_Konsultansi_Badan_Usaha_Konstruksi',
             'Jasa_Konsultansi_Perorangan_Konstruksi', 'Pekerjaan_Konstruksi_Terintegrasi'
         ]
+
         anchors = []
 
         for type in types:
@@ -46,6 +44,7 @@ class DynamicSpider(scrapy.Spider):
         
         main_window = self.driver.current_window_handle
 
+        # looping anchor yg didapat
         for anchor in anchors:
             detail_url = anchor.get_attribute('href')
             self.driver.execute_script(f"window.open('{detail_url}', '_blank');")
@@ -55,6 +54,7 @@ class DynamicSpider(scrapy.Spider):
                 EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/table/tbody/tr[1]/td/strong"))
             )
 
+            # Define Return Data
             item = self.extract_detail_page()
 
             self.items.append(item)
