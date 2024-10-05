@@ -1,12 +1,10 @@
 <!-- @format -->
 
-# API Data Crawler
-
-blablablabla
+# Scrapper Module
 
 ## Run The Project
 
-Install my-project with npm
+Create a virtual environtment
 
 ```python
   python -m venv venv
@@ -34,14 +32,22 @@ Out from Virtual Environtment
 
 ## API Reference
 
-#### Store Scraping Data
+#### Basically, this scrapper runs automatically because it uses cron (scheduler).
+
+But,
+
+#### Store Scraping Data [MANUALY]
 
 ```http
-  GET /scrape/store
+  GET /manual-scrape/
 ```
 
-#### Get Scraping Data
+## NOTES
 
-```http
-  GET /data/scrape
-```
+#### 1. Database will using MONGO DB
+
+#### 2. You can setup env variabel by following .example.env format
+
+#### 3. You can setup configuration of scraper like (LPSE Domain, Tender Type, SBU and KBLI code spesification) in [config] folder
+
+#### 4. You can setup data output from scrapper in spider file [/server/utils/scrapper/spider/spider.py] (This is also core function from this module)

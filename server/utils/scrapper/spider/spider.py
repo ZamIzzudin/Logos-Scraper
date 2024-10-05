@@ -10,14 +10,12 @@ import json
 
 class DynamicSpider(scrapy.Spider):
     name = 'dynamic_spider'
-    allowed_domains = [
-        'lpse.tangerangkota.go.id', 'lpse.tangerangkab.go.id', 'lpse.tangerangselatankota.go.id',
 
-    ]
-    start_urls = [
-        'https://lpse.tangerangkota.go.id/eproc4', 'https://lpse.tangerangkab.go.id/eproc4',
-        'https://lpse.tangerangselatankota.go.id/eproc4',
-    ]
+    with open('config/domain.json', 'r') as domain_file:
+                    allowed_domains = json.load(domain_file)
+
+    start_urls = [f'https://{domain}/eproc4' for domain in allowed_domains]
+
     items = []
 
     def __init__(self):
@@ -29,11 +27,8 @@ class DynamicSpider(scrapy.Spider):
         self.driver = webdriver.Chrome(options=self.chrome_options)
         self.driver.get(response.url)
 
-        types = [
-            'Pengadaan_Barang', 'Jasa_Konsultansi_Badan_Usaha_Non_Konstruksi', 'Pekerjaan_Konstruksi',
-            'Jasa_Lainnya', 'Jasa_Konsultansi_Perorangan_Non_Konstruksi', 'Jasa_Konsultansi_Badan_Usaha_Konstruksi',
-            'Jasa_Konsultansi_Perorangan_Konstruksi', 'Pekerjaan_Konstruksi_Terintegrasi'
-        ]
+        with open('config/type.json', 'r') as type_file:
+                    types = json.load(type_file)
 
         anchors = []
 
@@ -54,7 +49,7 @@ class DynamicSpider(scrapy.Spider):
                 EC.presence_of_element_located((By.XPATH, "/html/body/div[2]/div/div/table/tbody/tr[1]/td/strong"))
             )
 
-            # Define Return Data
+            # # Define Return Data
             item = self.extract_detail_page()
 
             self.items.append(item)
@@ -90,10 +85,10 @@ class DynamicSpider(scrapy.Spider):
         parsed_url = urlparse(self.driver.current_url)
         item['anchor'] = parsed_url.netloc
 
-        with open('server/utils/scrapper/spider/sbu.json', 'r') as sbu_file:
+        with open('config/sbu.json', 'r') as sbu_file:
             sbu_list = json.load(sbu_file)
 
-        with open('server/utils/scrapper/spider/kbli.json', 'r') as kbli_file:
+        with open('config/kbli.json', 'r') as kbli_file:
             kbli_list = json.load(kbli_file)
 
         syarat_kualifikasi_text = item['syarat_kualifikasi']
