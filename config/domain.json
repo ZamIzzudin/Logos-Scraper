@@ -2,5 +2,10 @@
   "lpse.tangerangkota.go.id",
   "lpse.tangerangkab.go.id",
   "lpse.tangerangselatankota.go.id",
-  "lpse.jakarta.go.id"
+  "lpse.jakarta.go.id",
+  "lpse.acehprov.go.id",
+  "lpse.kaltimprov.go.id",
+  "lpse.kalselprov.go.id",
+  "lpse.sulutprov.go.id",
+  "lpse.kemenkeu.go.id"
 ]
