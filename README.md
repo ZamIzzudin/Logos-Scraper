@@ -39,15 +39,15 @@ But,
 #### Store Scraping Data [MANUALY]
 
 ```http
-  GET /manual-scrape/
+   GET - {base_url}/manual-scrape
 ```
 
 ## NOTES
 
-#### 1. Database will using MONGO DB
+#### 1. Database will using MONGO DB.
 
-#### 2. You can setup env variabel by following .example.env format
+#### 2. You can setup env variabel by following ".example.env" format.
 
-#### 3. You can setup configuration of scraper like (LPSE Domain, Tender Type, SBU and KBLI code spesification) in [config] folder
+#### 3. You can setup configuration of scrapper in [/config] folder (LPSE Domains, Tender Type, SBU and KBLI code spesification).
 
-#### 4. You can setup data output from scrapper in spider file [/server/utils/scrapper/spider/spider.py] (This is also core function from this module)
+#### 4. You can setup data output from scrapper in "spider.py" file [/server/utils/scrapper/spider/spider.py] (This is also core function from this module).
